@@ -1,0 +1,242 @@
+/* Общие стили */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #f0f0f0, #d9e4f5);
+    margin: 0;
+    padding: 0;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  
+  header {
+    background: linear-gradient(90deg, #007bff, #00d4ff);
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .navbar h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  
+  /* Стили для поисковой строки */
+  .search-wrapper {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto 30px;
+  }
+  
+  .search-wrapper form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: linear-gradient(90deg, #7C33FA, #AD3AF9);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .search-wrapper form:hover {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  }
+  
+  .search-wrapper input[type="text"] {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 1.1rem;
+    outline: none;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+  
+  .search-wrapper button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    font-size: 1.1rem;
+    padding: 8px 12px;
+  }
+  
+  /* Стили для модального окна автодополнения */
+  .suggestions-modal {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -20%);
+    width: 90%;
+    max-width: 600px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    animation: modalFadeIn 0.3s ease-out;
+  }
+  
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: translate(-50%, -25%); }
+    to { opacity: 1; transform: translate(-50%, -20%); }
+  }
+  
+  .modal-content {
+    padding: 20px;
+    position: relative;
+  }
+  
+  .close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .suggestions-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .suggestions-list .suggestion-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+  }
+  
+  .suggestions-list .suggestion-item:hover {
+    background-color: #f8f8f8;
+  }
+  
+  /* Стили для каталога (грид карточек) */
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px; /* расстояние между карточками */
+    margin: 20px 0;
+  }
+  
+  .catalog-item {
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  }
+  
+  .catalog-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  .catalog-item h2 {
+    margin: 0 0 12px;
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .catalog-item p {
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.4;
+  }
+  
+  /* Стили для изображения в карточке */
+  .catalog-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: contain; /* Вместо cover */
+    display: block;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+  }
+  
+  .block-assign {
+    flex: 1 1 300px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    /* при желании margin-top, чтобы отделить от других блоков */
+    margin-top: 30px;
+  }
+  
+  .block-assign h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+  }
+  
+  /* Пример стилей для кнопок внутри блока, если нужно */
+  .card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .card-actions button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .card-actions button:hover {
+    background-color: #218838;
+  }
+  
+  /* Стиль для предпросмотра карточки */
+  .card-preview {
+    margin-top: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  /* Изображение фиксированного размера */
+  .card-preview-img {
+    width: 200px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .navbar h1 {
+      font-size: 2rem;
+    }
+    .search-wrapper form {
+      max-width: 90%;
+    }
+    .catalog-grid {
+      grid-template-columns: 1fr;
+    }
+  }

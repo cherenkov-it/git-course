@@ -1,0 +1,242 @@
+/* Общие стили */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #f0f0f0, #d9e4f5);
+    margin: 0;
+    padding: 0;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  
+  header {
+    background: linear-gradient(90deg, #007bff, #00d4ff);
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .navbar h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+  
+  /* Сетка управления продуктами */
+  .manage-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+  
+  /* Блок добавления продукта */
+  .block-add {
+    flex: 1 1 300px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .block-add h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+  }
+  
+  .block-add form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .block-add input,
+  .block-add textarea {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  .block-add button {
+    padding: 12px;
+    font-size: 1.1rem;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .block-add button:hover {
+    background-color: #218838;
+  }
+  
+  #addMessage {
+    margin-top: 10px;
+    font-size: 1rem;
+  }
+  
+  /* Блок редактирования/удаления продукта */
+  .block-edit {
+    flex: 1 1 300px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .block-edit h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+  }
+  
+  /* Стили для раскрывающегося списка */
+  .product-select {
+    margin-bottom: 15px;
+  }
+  
+  .product-select select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 1rem;
+    outline: none;
+    border: 1px solid #ccc;
+  }
+  
+  /* Стили для формы редактирования */
+  #editProductForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  #editProductForm input,
+  #editProductForm textarea {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  #editProductForm button {
+    padding: 12px;
+    font-size: 1.1rem;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  #editProductForm button:hover {
+    background-color: #218838;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  #editMessage {
+    margin-top: 10px;
+    font-size: 1rem;
+  }
+  
+  /* Новый блок "Добавить карточку" */
+  .block-assign {
+    flex: 1 1 300px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-top: 30px;
+  }
+  
+  .block-assign h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+  }
+  
+  .block-assign .product-select {
+    margin-bottom: 15px;
+  }
+  
+  .block-assign .product-select select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 1rem;
+    outline: none;
+    border: 1px solid #ccc;
+  }
+  
+  /* Стили для предпросмотра карточки */
+  .card-preview {
+    margin-top: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .card-preview-img {
+    width: 200px;
+    height: 150px; /* Фиксированная высота для превью */
+    object-fit: contain;
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  /* Стили для кнопок управления карточкой */
+  .card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .card-actions button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .card-actions button:hover {
+    background-color: #218838;
+  }
+  
+  /* Контейнер для добавленных карточек */
+  .assigned-cards {
+    margin-top: 15px;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .manage-container {
+      flex-direction: column;
+    }
+  }
+  

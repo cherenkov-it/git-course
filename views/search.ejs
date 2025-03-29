@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Каталог фруктов</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <h1>Каталог фруктов</h1>
+    </nav>
+  </header>
+  <main class="container">
+    <div class="search-wrapper">
+      <form id="searchForm" action="/" method="get" autocomplete="off">
+        <input type="text" name="q" id="searchInput" placeholder="Поиск..." value="<%= query %>">
+        <button type="submit">Найти</button>
+      </form>
+    </div>
+
+    <div id="catalogGrid" class="catalog-grid">
+      <% if (items.length > 0) { %>
+        <% items.forEach(item => { %>
+          <div class="catalog-item">
+            <% if (item.image) { %>
+              <img src="<%= item.image %>" alt="<%= item.title %>">
+            <% } %>
+            <h2><%= item.title %></h2>
+            <p><%= item.description %></p>
+          </div>
+        <% }); %>
+      <% } else if (query) { %>
+        <p>Ничего не найдено.</p>
+      <% } else { %>
+        <p>Нет доступных товаров.</p>
+      <% } %>
+    </div>
+
+    <!-- Блок для отображения назначенных карточек -->
+    <section class="assigned-cards-section">
+        <div class="catalog-grid" id="assignedCardsGrid">
+          <% if (assignedCards && assignedCards.length > 0) { %>
+            <% assignedCards.forEach(card => { 
+                const prod = card.product;
+                if (prod) { %>
+              <div class="catalog-item" data-card-id="<%= card._id %>">
+                <% if (prod.image) { %>
+                  <img src="<%= prod.image %>" alt="<%= prod.title %>">
+                <% } %>
+                <h2><%= prod.title %></h2>
+                <p><%= prod.description %></p>
+              </div>
+            <% } }); %>
+          <% } else { %>
+            <p>Нет назначенных карточек.</p>
+          <% } %>
+        </div>
+      </section>
+  </main>
+  
+  <div id="suggestionsModal" class="suggestions-modal" style="display: none;">
+    <div class="modal-content">
+      <span id="closeModal" class="close-modal">&times;</span>
+      <ul id="suggestionsList" class="suggestions-list"></ul>
+    </div>
+  </div>
+  
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsModal = document.getElementById('suggestionsModal');
+    const suggestionsList = document.getElementById('suggestionsList');
+    const closeModal = document.getElementById('closeModal');
+    const catalogGrid = document.getElementById('catalogGrid');
+    const searchForm = document.getElementById('searchForm');
+    
+    async function updateCatalog(query) {
+      try {
+        const response = await fetch('/api/search?q=' + encodeURIComponent(query));
+        const items = await response.json();
+        renderCatalog(items);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    
+    function renderCatalog(items) {
+      catalogGrid.innerHTML = '';
+      if (items.length > 0) {
+        items.forEach(item => {
+          const div = document.createElement('div');
+          div.classList.add('catalog-item');
+          if (item.image) {
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.alt = item.title;
+            div.appendChild(img);
+          }
+          const h2 = document.createElement('h2');
+          h2.textContent = item.title;
+          const p = document.createElement('p');
+          p.textContent = item.description;
+          div.appendChild(h2);
+          div.appendChild(p);
+          catalogGrid.appendChild(div);
+        });
+      } else {
+        if (searchInput.value.trim()) {
+          catalogGrid.innerHTML = '<p>Ничего не найдено.</p>';
+        } else {
+          catalogGrid.innerHTML = '<p>Нет доступных товаров.</p>';
+        }
+      }
+    }
+    
+    async function updateSuggestions(query) {
+      try {
+        const response = await fetch('/autocomplete?q=' + encodeURIComponent(query));
+        const data = await response.json();
+        suggestionsList.innerHTML = '';
+        if (data && data.length > 0) {
+          data.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.title;
+            li.classList.add('suggestion-item');
+            li.addEventListener('click', () => {
+              searchInput.value = item.title;
+              suggestionsModal.style.display = 'none';
+              updateCatalog(item.title);
+            });
+            suggestionsList.appendChild(li);
+          });
+          suggestionsModal.style.display = 'block';
+        } else {
+          suggestionsModal.style.display = 'none';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    
+    searchInput.addEventListener('input', async function() {
+      const query = searchInput.value.trim();
+      if (query.length === 0) {
+        suggestionsModal.style.display = 'none';
+        updateCatalog('');
+        return;
+      }
+      updateSuggestions(query);
+    });
+    
+    searchForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const query = searchInput.value.trim();
+      suggestionsModal.style.display = 'none';
+      updateCatalog(query);
+    });
+    
+    closeModal.addEventListener('click', () => {
+      suggestionsModal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', (e) => {
+      if (e.target === suggestionsModal) {
+        suggestionsModal.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Управление продуктами</title>
+  <link rel="stylesheet" href="/manage-products.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <h1>Управление продуктами</h1>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="manage-container">
+      <!-- 1. Блок добавления нового продукта -->
+      <div class="block-add">
+        <h2>Добавить продукт</h2>
+        <form id="addForm" enctype="multipart/form-data">
+          <input type="text" id="addTitle" placeholder="Название продукта" required>
+          <textarea id="addDescription" placeholder="Описание продукта"></textarea>
+          <input type="file" id="addImage" accept="image/*">
+          <button type="submit">Добавить</button>
+        </form>
+        <div id="addMessage"></div>
+      </div>
+
+      <!-- 2. Блок редактирования/удаления продукта -->
+      <div class="block-edit">
+        <h2>Редактирование продукта</h2>
+        <div class="product-select">
+          <select id="productSelect">
+            <option value="">-- Выберите продукт --</option>
+            <% products.forEach(prod => { %>
+              <option 
+                value="<%= prod._id %>" 
+                data-title="<%= prod.title %>" 
+                data-desc="<%= prod.description %>" 
+                data-image="<%= prod.image %>">
+                <%= prod.title %>
+              </option>
+            <% }); %>
+          </select>
+        </div>
+        <form id="editProductForm" enctype="multipart/form-data">
+          <input type="hidden" id="productId">
+          <input type="text" id="editTitle" placeholder="Название продукта" required>
+          <textarea id="editDescription" placeholder="Описание продукта"></textarea>
+          <div id="currentImagePath"></div>
+          <input type="file" id="editImage" accept="image/*">
+          <div class="form-actions">
+            <button type="submit">Сохранить изменения</button>
+            <button type="button" id="deleteButton">Удалить продукт</button>
+          </div>
+        </form>
+        <div id="editMessage"></div>
+      </div>
+
+      <!-- 3. Блок "Добавить карточку" -->
+      <div class="block-assign">
+        <h2>Добавить карточку</h2>
+        <div class="product-select">
+          <select id="cardSelect">
+            <option value="">-- Выберите карточку --</option>
+            <% products.forEach(prod => { %>
+              <option 
+                value="<%= prod._id %>" 
+                data-title="<%= prod.title %>" 
+                data-desc="<%= prod.description %>" 
+                data-image="<%= prod.image %>">
+                <%= prod.title %>
+              </option>
+            <% }); %>
+          </select>
+        </div>
+        <!-- Здесь можно добавить превью, если нужно -->
+        <div id="cardPreview" class="card-preview"></div>
+        <div class="card-actions">
+          <button id="addCardBtn" type="button">Добавить карточку</button>
+          <button id="removeCardBtn" type="button">Удалить карточку</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Функция для загрузки изображения через FormData
+    async function uploadImage(productId, fileInput) {
+      if (!fileInput.files[0]) return null;
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+      try {
+        const response = await fetch('/api/upload-image/' + productId, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (response.ok) {
+          return data.product.image;
+        } else {
+          console.error(data.error);
+          return null;
+        }
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    }
+
+    // ---------- Блок добавления нового продукта ----------
+    const addForm = document.getElementById('addForm');
+    const addTitle = document.getElementById('addTitle');
+    const addDescription = document.getElementById('addDescription');
+    const addImage = document.getElementById('addImage');
+    const addMessage = document.getElementById('addMessage');
+    const productSelect = document.getElementById('productSelect');
+
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      addMessage.textContent = '';
+      const title = addTitle.value.trim();
+      const description = addDescription.value.trim();
+      if (!title) {
+        addMessage.textContent = 'Название продукта обязательно';
+        addMessage.style.color = 'red';
+        return;
+      }
+      try {
+        const response = await fetch('/api/add-product', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          addMessage.textContent = data.error || 'Ошибка при добавлении';
+          addMessage.style.color = 'red';
+          return;
+        }
+        const productId = data.product._id;
+        if (addImage.files[0]) {
+          const imagePath = await uploadImage(productId, addImage);
+          if (imagePath) {
+            data.product.image = imagePath;
+          }
+        }
+        addMessage.textContent = 'Продукт успешно добавлен!';
+        addMessage.style.color = 'green';
+        addForm.reset();
+        // Добавляем новый продукт в select редактирования
+        const option = document.createElement('option');
+        option.value = data.product._id;
+        option.textContent = data.product.title;
+        option.setAttribute('data-title', data.product.title);
+        option.setAttribute('data-desc', data.product.description);
+        option.setAttribute('data-image', data.product.image || '');
+        productSelect.appendChild(option);
+      } catch (err) {
+        console.error(err);
+        addMessage.textContent = 'Ошибка при отправке данных';
+        addMessage.style.color = 'red';
+      }
+    });
+
+    // ---------- Блок редактирования/удаления продукта ----------
+    const editProductForm = document.getElementById('editProductForm');
+    const productIdInput = document.getElementById('productId');
+    const editTitleInput = document.getElementById('editTitle');
+    const editDescriptionInput = document.getElementById('editDescription');
+    const editImage = document.getElementById('editImage');
+    const editMessage = document.getElementById('editMessage');
+    const deleteButton = document.getElementById('deleteButton');
+    const currentImagePath = document.getElementById('currentImagePath');
+
+    productSelect.addEventListener('change', () => {
+      editMessage.textContent = '';
+      currentImagePath.textContent = '';
+      const selectedOption = productSelect.options[productSelect.selectedIndex];
+      const id = selectedOption.value;
+      if (!id) {
+        productIdInput.value = '';
+        editTitleInput.value = '';
+        editDescriptionInput.value = '';
+        return;
+      }
+      productIdInput.value = id;
+      editTitleInput.value = selectedOption.getAttribute('data-title') || '';
+      editDescriptionInput.value = selectedOption.getAttribute('data-desc') || '';
+      const imagePath = selectedOption.getAttribute('data-image');
+      if (imagePath) {
+        currentImagePath.textContent = 'Путь к изображению: ' + imagePath;
+      }
+    });
+
+    editProductForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      editMessage.textContent = '';
+      const id = productIdInput.value;
+      const title = editTitleInput.value.trim();
+      const description = editDescriptionInput.value.trim();
+      if (!id) {
+        editMessage.textContent = 'Выберите продукт для редактирования.';
+        editMessage.style.color = 'red';
+        return;
+      }
+      try {
+        let imagePath = '';
+        if (editImage.files[0]) {
+          imagePath = await uploadImage(id, editImage);
+        }
+        const payload = { title, description };
+        if (imagePath) {
+          payload.image = imagePath;
+        }
+        const response = await fetch('/api/update-product/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          editMessage.textContent = data.error || 'Ошибка обновления продукта';
+          editMessage.style.color = 'red';
+        } else {
+          editMessage.textContent = 'Продукт обновлён успешно!';
+          editMessage.style.color = 'green';
+          for (let i = 0; i < productSelect.options.length; i++) {
+            if (productSelect.options[i].value === id) {
+              productSelect.options[i].textContent = title;
+              productSelect.options[i].setAttribute('data-title', title);
+              productSelect.options[i].setAttribute('data-desc', description);
+              if (imagePath) {
+                productSelect.options[i].setAttribute('data-image', imagePath);
+              }
+              break;
+            }
+          }
+          if (imagePath) {
+            currentImagePath.textContent = 'Путь к изображению: ' + imagePath;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        editMessage.textContent = 'Ошибка при отправке данных';
+        editMessage.style.color = 'red';
+      }
+    });
+
+    deleteButton.addEventListener('click', async () => {
+      editMessage.textContent = '';
+      const id = productIdInput.value;
+      if (!id) {
+        editMessage.textContent = 'Выберите продукт для удаления.';
+        editMessage.style.color = 'red';
+        return;
+      }
+      if (!confirm('Вы уверены, что хотите удалить этот продукт?')) return;
+      try {
+        const response = await fetch('/api/delete-product/' + id, {
+          method: 'DELETE'
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          editMessage.textContent = data.error || 'Ошибка удаления продукта';
+          editMessage.style.color = 'red';
+        } else {
+          editMessage.textContent = 'Продукт удалён успешно!';
+          editMessage.style.color = 'green';
+          for (let i = 0; i < productSelect.options.length; i++) {
+            if (productSelect.options[i].value === id) {
+              productSelect.remove(i);
+              break;
+            }
+          }
+          productIdInput.value = '';
+          editTitleInput.value = '';
+          editDescriptionInput.value = '';
+          currentImagePath.textContent = '';
+        }
+      } catch (err) {
+        console.error(err);
+        editMessage.textContent = 'Ошибка при удалении продукта';
+        editMessage.style.color = 'red';
+      }
+    });
+
+    
+   // ---------- Блок "Добавить карточку" ----------
+const cardSelect = document.getElementById('cardSelect');
+const cardPreview = document.getElementById('cardPreview');
+const addCardBtn = document.getElementById('addCardBtn');
+const removeCardBtn = document.getElementById('removeCardBtn');
+
+let currentAssignedCards = []; // Массив для хранения карточек с сервера
+
+// Получаем карточки при загрузке страницы
+async function fetchAssignedCards() {
+  const response = await fetch('/api/assigned-cards');
+  currentAssignedCards = await response.json();
+}
+
+fetchAssignedCards();
+
+cardSelect.addEventListener('change', () => {
+  cardPreview.innerHTML = '';
+  const selectedOption = cardSelect.options[cardSelect.selectedIndex];
+  const pid = selectedOption.value;
+  if (!pid) return;
+  const title = selectedOption.getAttribute('data-title');
+  const desc = selectedOption.getAttribute('data-desc');
+  const imagePath = selectedOption.getAttribute('data-image');
+  let html = '';
+  if (imagePath) {
+    html += `<img src="${imagePath}" alt="${title}" class="card-preview-img">`;
+  }
+  html += `<h3>${title}</h3>`;
+  html += `<p>${desc}</p>`;
+  cardPreview.innerHTML = html;
+});
+
+// Добавление карточки
+addCardBtn.addEventListener('click', async () => {
+  const productId = cardSelect.value;
+  if (!productId) {
+    alert('Выберите продукт для добавления карточки');
+    return;
+  }
+  const response = await fetch('/api/assign-card', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId })
+  });
+  const data = await response.json();
+  if (response.ok) {
+    currentAssignedCards.push(data.card);
+    alert('Карточка успешно добавлена');
+  } else {
+    alert(data.error || 'Ошибка при добавлении карточки');
+  }
+});
+
+// Удаление карточки
+removeCardBtn.addEventListener('click', async () => {
+  const productId = cardSelect.value;
+  if (!productId) {
+    alert('Выберите карточку для удаления');
+    return;
+  }
+
+  // Ищем ID карточки по productId
+  const cardToDelete = currentAssignedCards.find(c => c.product._id === productId);
+  if (!cardToDelete) {
+    alert('Этой карточки нет среди назначенных');
+    return;
+  }
+
+  const response = await fetch(`/api/assign-card/${cardToDelete._id}`, {
+    method: 'DELETE'
+  });
+  const data = await response.json();
+  if (response.ok) {
+    currentAssignedCards = currentAssignedCards.filter(c => c._id !== cardToDelete._id);
+    alert('Карточка удалена');
+  } else {
+    alert(data.error || 'Ошибка при удалении карточки');
+  }
+});
+
+  </script>
+</body>
+</html>
